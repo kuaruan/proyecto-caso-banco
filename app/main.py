@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
-from app.db import test_connection, get_postulaciones, get_postulaciones_stats
-from app.predict import predict_aprobacion 
+from app.db import test_connection, get_servicio, get_servicios_stats
+from app.predict import predict_suscripcion
 
 app = FastAPI(title="Caso Banco")
 
