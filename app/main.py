@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-app = FastAPI(title="MVP DataOps Docente")
+app = FastAPI(title="Caso banco")
 @app.get("/")
 def root():
      return {"message": "API activa"} 
