@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from app.db import test_connection, get_servicio, get_servicios_stats
 from app.predict import predict_suscripcion
 
-app = FastAPI(title="Caso Banco")
+app = FastAPI(title="Bank Marketing Dataset")
 
 class PredictAprobacionRequest(BaseModel):
     edad: int
@@ -29,8 +29,8 @@ def db_health():
     return test_connection()
 
 @app.get("/servicio")
-def listar_postulaciones(limit: int = Query(default=20, ge=1, le=100)):
-    """Obtiene los últimos usuarios en aceptar el servicio"""
+def listar_suscripciones(limit: int = Query(default=20, ge=1, le=100)):
+    """Obtiene los últimos usuarios en suscribir un depósito"""
     try:
         data = get_servicio(limit=limit)
         return {
@@ -55,7 +55,7 @@ def estadisticas_banco():
 
 @app.post("/predict-suscripcion")
 def evaluar_credito(payload: PredictSuscripcionRequest):
-    """Endpoint para predecir si un cliente aceptará o rechazará el servicio"""
+    """Endpoint para predecir que clientes tienen mayor probabilidad de suscribir un depósito"""
     try:
         result = predict_suscripcion(payload.model_dump())
         return {
