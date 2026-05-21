@@ -31,22 +31,18 @@ def test_connection():
         return {"status": "error", "detail": str(e)}
 
 def get_servicio(limit: int = 20):
-    """Obtiene los registros de marketing bancario con limpieza de tipos"""
+    """Obtiene los registros con limpieza de tipos para evitar errores 422"""
     params = get_connection_params()
     with psycopg.connect(**params, row_factory=dict_row) as conn:
         with conn.cursor() as cur:
             cur.execute('SELECT * FROM public.bank_marketing LIMIT %s;', (limit,))
             rows = cur.fetchall()
             
+            # Convertimos todo a tipos básicos de Python (int, float, str)
             clean_rows = []
             for row in rows:
-                clean_row = {}
-                for key, value in row.items():
-                    
-                    if isinstance(value, (int, float)):
-                        clean_row[key] = value
-                    else:
-                        clean_row[key] = str(value) 
+                clean_row = {k: (int(v) if isinstance(v, (int, float)) else str(v)) 
+                             for k, v in row.items()}
                 clean_rows.append(clean_row)
             return clean_rows
 
