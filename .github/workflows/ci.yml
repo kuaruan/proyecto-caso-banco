@@ -9,7 +9,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
     env:
       SUPABASE_DB_HOST: ${{ secrets.SUPABASE_DB_HOST }}
       SUPABASE_DB_NAME: ${{ secrets.SUPABASE_DB_NAME }}
@@ -19,18 +18,18 @@ jobs:
       PYTHONPATH: .
 
     steps:
-      - name: Checkout
+      - name: Descargar codigo
         uses: actions/checkout@v4
 
-      - name: Python
+      - name: Instalar Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Deps
+      - name: Instalar librerias
         run: |
           pip install httpx pytest fastapi pandas joblib scikit-learn "psycopg[binary]"
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Run
-        run: python -m pytest tests/test_health.py -v
+      - name: Probar API
+        run: |
+          python -m pytest tests/test_health.py -v
