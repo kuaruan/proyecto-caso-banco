@@ -33,24 +33,23 @@ def test_connection():
 def get_servicio(limit: int = 20):
     """Obtiene los registros de marketing bancario"""
     params = get_connection_params()
-    # Usamos dict_row entrega los diccionarios
     with psycopg.connect(**params, row_factory=dict_row) as conn:
         with conn.cursor() as cur:
-            
+            # Seleccionamos las columnas principales para no saturar la respuesta
             cur.execute('SELECT * FROM public.bank_marketing LIMIT %s;', (limit,))
             return cur.fetchall()
 
 def get_servicios_stats():
-    """Obtiene estadísticas de las suscripciones (columna 'y')"""
+    """Obtiene estadísticas de las suscripciones (usando la columna 'deposit')"""
     params = get_connection_params()
     
-    # Consulta para resumen general y conteo de suscripciones (y)
+    
     summary_query = '''
     SELECT 
-        count(*) as total_registros,
-        round(avg(age)::numeric, 2) as promedio_edad,
-        count(*) FILTER (WHERE y = 'yes') as suscritos_si,
-        count(*) FILTER (WHERE y = 'no') as suscritos_no
+    count(*) as total_registros,
+    round(avg(age)::numeric, 2) as promedio_edad,
+    count(*) FILTER (WHERE deposit = 1) as suscritos_si,
+    count(*) FILTER (WHERE deposit = 0) as suscritos_no
     FROM public.bank_marketing;
     '''
 
@@ -81,12 +80,18 @@ def get_servicios_stats():
             cur.execute(education_query)
             education_rows = cur.fetchall()
 
+    # Manejo de nulos por si la tabla está vacía
+    total_clientes = int(summary[0]) if summary[0] else 0
+    promedio_edad = float(summary[1]) if summary[1] else 0.0
+    si = int(summary[2]) if summary[2] else 0
+    no = int(summary[3]) if summary[3] else 0
+
     return {
-        "total_clientes": int(summary[0]),
-        "promedio_edad": float(summary[1]),
+        "total_clientes": total_clientes,
+        "promedio_edad": promedio_edad,
         "tasa_suscripcion": {
-            "si": int(summary[2]),
-            "no": int(summary[3])
+            "si": si,
+            "no": no
         },
         "por_trabajo": [{"trabajo": row[0], "total": int(row[1])} for row in job_rows],
         "por_educacion": [{"nivel": row[0], "total": int(row[1])} for row in education_rows]
