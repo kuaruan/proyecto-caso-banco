@@ -5,18 +5,36 @@ import psycopg
 from psycopg.rows import dict_row
 
 def predict_suscripcion(cliente_id: int):
-    # 1. Cargar el modelo 
+    # Cargar modelo
     model = joblib.load("models/bank_model.pkl")
-    
-    # 2. Buscar datos en Supabase
     params = get_connection_params()
+    
     with psycopg.connect(**params, row_factory=dict_row) as conn:
         with conn.cursor() as cur:
+            # IMPORTANTE: Usamos la columna 'id' que agregamos con el comando ALTER TABLE
             cur.execute("SELECT * FROM bank_marketing WHERE id = %s", (cliente_id,))
             cliente_data = cur.fetchone()
     
     if not cliente_data:
-        return {"error": "Cliente no encontrado"}
+        return {"error": f"No existe el cliente con ID {cliente_id}"}
+
+    # Preparamos las variables exactamente como las espera el RandomForest
+    input_data = pd.DataFrame([{
+        'age': int(cliente_data['age']),
+        'balance': int(cliente_data['balance']),
+        'day': int(cliente_data['day']),
+        'duration': int(cliente_data['duration']),
+        'campaign': int(cliente_data['campaign'])
+    }])
+    
+    prediccion = model.predict(input_data)[0]
+    resultado_texto = "yes" if prediccion == 1 else "no"
+
+    return {
+        "cliente_id": cliente_id,
+        "prediccion_deposito": resultado_texto,
+        "mensaje": f"El modelo estima que el cliente {'sí' if resultado_texto == 'yes' else 'no'} aceptará el depósito."
+    }
 
     # 3. Preparar los datos para el modelo
     input_data = {

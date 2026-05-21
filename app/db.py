@@ -31,13 +31,24 @@ def test_connection():
         return {"status": "error", "detail": str(e)}
 
 def get_servicio(limit: int = 20):
-    """Obtiene los registros de marketing bancario"""
+    """Obtiene los registros de marketing bancario con limpieza de tipos"""
     params = get_connection_params()
     with psycopg.connect(**params, row_factory=dict_row) as conn:
         with conn.cursor() as cur:
-            # Seleccionamos las columnas principales para no saturar la respuesta
             cur.execute('SELECT * FROM public.bank_marketing LIMIT %s;', (limit,))
-            return cur.fetchall()
+            rows = cur.fetchall()
+            
+            clean_rows = []
+            for row in rows:
+                clean_row = {}
+                for key, value in row.items():
+                    
+                    if isinstance(value, (int, float)):
+                        clean_row[key] = value
+                    else:
+                        clean_row[key] = str(value) 
+                clean_rows.append(clean_row)
+            return clean_rows
 
 def get_servicios_stats():
     """Obtiene estadísticas de las suscripciones (usando la columna 'deposit')"""
