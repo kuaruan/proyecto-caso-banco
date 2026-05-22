@@ -12,11 +12,8 @@ def root():
     return {"message": "API de Predicción de suscripciones para Bank Marketing"}
 
 @app.get("/health")
-async def health():
-    return {
-        "status": "operativo",
-        "sistema": "banco"
-    }
+def health():
+    return {"status": "operativo", "sistema": "banco"}
     
 @app.get("/db-health")
 def db_health():
