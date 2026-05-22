@@ -29,11 +29,10 @@ Instalación y Uso:
    En bash:
    uvicorn app.main:app --reload
 
-4. Documentación (ver en navegador): http://127.0.0.1:8000/docs
-   Endpoints relevantes:
-   GET /predict/{cliente_id}: Predicción por medio de consulta
-   GET /suscripciones/estadisticas: Análisis descriptivo de la campaña de marketing
-   GET /servicio: Lista de registros de la base de datos
+ 4. Documentación -> http://127.0.0.1:8000/docs
+     GET /predict/{cliente_id}: Predicción por medio de consulta
+     GET /suscripciones/estadisticas: Análisis descriptivo de la campaña de marketing
+     GET /servicio: Lista de registros de la base de datos
    ------------------------------------------------------------------------------------------------
    Con Docker:
    En la cmd:
