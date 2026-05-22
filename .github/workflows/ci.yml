@@ -1,14 +1,19 @@
-name: CI
+name: CI/CD FastAPI Banco
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   test:
+    name: Run tests
     runs-on: ubuntu-latest
+
     env:
       SUPABASE_DB_HOST: ${{ secrets.SUPABASE_DB_HOST }}
       SUPABASE_DB_NAME: ${{ secrets.SUPABASE_DB_NAME }}
@@ -21,15 +26,43 @@ jobs:
       - name: Descargar codigo
         uses: actions/checkout@v4
 
-      - name: Instalar Python
+      - name: Configurar Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Instalar librerias
+      - name: Instalar dependencias
         run: |
-          pip install httpx pytest fastapi pandas joblib scikit-learn "psycopg[binary]"
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Probar API
+      - name: Ejecutar tests
         run: |
-          python -m pytest tests/test_health.py -v
+          pytest -v
+
+  docker-build:
+    name: Build Docker image
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Descargar codigo
+        uses: actions/checkout@v4
+
+      - name: Construir imagen Docker
+        run: |
+          docker build -t proyecto-caso-banco .
+
+  deploy:
+    name: Deploy to Render
+    runs-on: ubuntu-latest
+    needs: docker-build
+
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Activar deploy en Render
+        run: |
+          curl -X POST "$RENDER_DEPLOY_HOOK_URL"
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
