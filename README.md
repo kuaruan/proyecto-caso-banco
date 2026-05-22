@@ -34,3 +34,20 @@ Instalación y Uso:
    GET /predict/{cliente_id}: Predicción por medio de consulta
    GET /suscripciones/estadisticas: Análisis descriptivo de la campaña de marketing
    GET /servicio: Lista de registros de la base de datos
+   ------------------------------------------------------------------------------------------------
+   Con Docker:
+   En la cmd:
+    docker build -t proyecto-caso-banco .
+    
+    docker run --env-file .env -p 8000:8000 proyecto-caso-banco
+    
+   En navegador:
+    http://localhost:8000
+    
+    http://localhost:8000/health
+
+   -------------------------------------------------------------------------------------------------
+   Links:
+   Render: https://dashboard.render.com/web/srv-d8855vl7vvec738fe21g
+   Supabase: https://supabase.com/dashboard/project/fwmgjqsqacfhvjnbyofo/sql/654c4ef6-585c-4e8f-a759-c05c80bab3f5?schema=public
+   Endpoints: http://localhost:8000/docs
