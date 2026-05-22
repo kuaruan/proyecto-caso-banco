@@ -12,9 +12,12 @@ def root():
     return {"message": "API de Predicción de suscripciones para Bank Marketing"}
 
 @app.get("/health")
-def health():
-    return {"status": "operativo", "sistema": "banco"}
-
+async def health():
+    return {
+        "status": "operativo",
+        "sistema": "banco"
+    }
+    
 @app.get("/db-health")
 def db_health():
     """Verificar la conexión con Supabase"""
