@@ -1,15 +1,19 @@
 from fastapi import FastAPI, HTTPException, Query
-from pydantic import BaseModel
 from app.db import test_connection, get_servicio, get_servicios_stats
-from app.predict import predict_suscripcion
 
-app = FastAPI(title="Bank Marketing Dataset API")
+app = FastAPI(
+    title="API de Gestión de Datos - Bank Marketing",
+    description="Sistema para la consulta y análisis descriptivode suscripciones"
+)
 
 # --- Endpoints de Información ---
 
 @app.get("/")
 def root():
-    return {"message": "API de Predicción de suscripciones para Bank Marketing"}
+    return {
+        "message": "API de Gestión de Datos para Bank Marketing",
+        "docs": "/docs"
+    }
 
 @app.get("/health")
 def health():
@@ -24,7 +28,7 @@ def db_health():
 
 @app.get("/servicio")
 def listar_suscripciones(limit: int = Query(default=20, ge=1, le=100)):
-    """Obtiene los últimos registros de la base de datos"""
+    """Obtiene los registros de la base de datos en Supabase"""
     try:
         data = get_servicio(limit=limit)
         return {
@@ -37,7 +41,7 @@ def listar_suscripciones(limit: int = Query(default=20, ge=1, le=100)):
 
 @app.get("/suscripciones/estadisticas")
 def estadisticas_banco():
-    """Análisis estadístico de suscripciones"""
+    """Análisis estadístico descriptivo de la campaña"""
     try:
         stats = get_servicios_stats()
         return {
@@ -46,24 +50,3 @@ def estadisticas_banco():
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-# --- Endpoint de Predicción con IA ---
-
-@app.get("/predict/{cliente_id}")
-def predecir_por_id(cliente_id: int):
-    """
-    Endpoint que toma un ID de cliente, busca sus datos en Supabase 
-    y usa el modelo .pkl para predecir si suscribirá un depósito.
-    """
-    try:
-        result = predict_suscripcion(cliente_id)
-        
-        if "error" in result:
-            raise HTTPException(status_code=404, detail=result["error"])
-            
-        return {
-            "status": "ok",
-            "resultado": result
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error en la predicción: {str(e)}")
