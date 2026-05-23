@@ -1,10 +1,9 @@
-name: CI/CD FastAPI Banco
+name: CI FastAPI Banco
 
 on:
   push:
     branches:
       - main
-
   pull_request:
     branches:
       - main
@@ -52,17 +51,3 @@ jobs:
       - name: Construir imagen Docker
         run: |
           docker build -t proyecto-caso-banco .
-
-  deploy:
-    name: Deploy to Render
-    runs-on: ubuntu-latest
-    needs: docker-build
-
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-
-    steps:
-      - name: Activar deploy en Render
-        run: |
-          curl -X POST "$RENDER_DEPLOY_HOOK_URL"
-        env:
-          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
