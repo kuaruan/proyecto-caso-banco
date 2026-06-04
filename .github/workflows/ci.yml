@@ -39,6 +39,14 @@ jobs:
         run: |
           pytest -v
 
+      - name: Auditoria de logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-logs-bank-marketing-${{ github.run_number }}
+          path: app.log
+          retention-days: 7 # guardar archivo 7 días
+          
   docker-build:
     name: Build Docker image
     runs-on: ubuntu-latest
