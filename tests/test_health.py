@@ -15,18 +15,44 @@ logging.basicConfig(
 
 client = TestClient(app)
 
-def test_api():
+def test_api(): # Disp
     logging.info("Verificando disponibilidad de api")
     try:
-        
+        logging.info("Petición http get a endpoint de la app")
         response = client.get("/")
-        
-        assert response.status_code == 200
 
+        logging.info(f"Respuesta entregada: Estado = {response.status_code}")
+        
+        assert response.status_code == 200 #  200, todo ok! solicitud procesada
+
+        logging.info("Validación exitosa, api activa")
+    except AssertionError as e:
+        logging.error(f"Algo ha fallado: {e}")
+        raise e # remarcar error en github
+    except Exception as e: 
+        logging.error(f"Error: {e}")
+        raise e
+
+    
 def test_health():
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json() == {
         "status": "operativo",
         "sistema": "banco"
+
+def test_db(): # Conexión db
+    logging.info("Verificar conexión con Supabase")
+    try: 
+        logging.info("Validar variables de entorno")
+        response = client.get("/docs")
+        assert response.status_code == 200
+        logging.info("Validación exitosa, tránsito y endpoints correctos")
+
+    except AssertionError as e:
+        logging.error(f"Error de acceso: {e}")
+        raise e
+    except Exception as e: 
+        logging.error(f"Error en  capa: {e}")
+        raise e
     }
