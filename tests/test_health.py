@@ -35,11 +35,24 @@ def test_api(): # Disp
 
     
 def test_health():
-    response = client.get("/health")
-    assert response.status_code == 200
-    assert response.json() == {
-        "status": "operativo",
-        "sistema": "banco"
+    logging.info("Verificación estado interno")
+    try:
+        logging.info("Solicitud http a endpoint health")
+        response = client.get("/health")
+        logging.info("Respuesta de estado /health: {response.status_code")
+        assert response.status_code == 200
+        assert response.json() == { # Validacion json retornado por api
+            "status": "operativo",
+            "sistema": "banco"
+        }
+        logging.info("Validación exitosa c:")
+        
+    except AssertionError as e:
+        logging.error(f"Error de validación estado /health: {e}")
+        raise e
+    except Exception as e: 
+        logging.error(f"Error: {e}")
+        raise e
 
 def test_db(): # Conexión db
     logging.info("Verificar conexión con Supabase")
@@ -55,4 +68,3 @@ def test_db(): # Conexión db
     except Exception as e: 
         logging.error(f"Error en  capa: {e}")
         raise e
-    }
