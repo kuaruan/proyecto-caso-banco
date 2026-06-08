@@ -10,7 +10,7 @@ logging.basicConfig(
     handlers = [
         logging.FileHandler("app.log", mode="w", encoding="utf-8"), # Limpieza log antiguo
         logging.StreamHandler() # Logs en vivo
-    ]
+    ],
     force=True # Generacion archivo
 )
 
