@@ -6,7 +6,6 @@ from pydantic import BaseModel, Field
 from app.db import test_connection, get_servicio, get_servicios_stats
 
 # Detección raíz del proyecto -> evita problemas en Docker
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RUTA_MODELO = os.path.join(BASE_DIR, "models", "modelo_perceptron_multicapa.pkl")
 RUTA_ESCALADOR = os.path.join(BASE_DIR, "models", "escalador_minmax.pkl")
 
@@ -26,7 +25,7 @@ class ClienteInput(BaseModel):
     age: int = Field(..., description="Edad del cliente", example=35)
     balance: float = Field(..., description="Balance anual en la cuenta", example=1500.0)
     day: int = Field(..., description="Último día del mes en que fue contactado", example=15)
-    duration_min: int = Field(..., description="Duración de la llamada en minutos", example=240)
+    duration_min: float = Field(..., description="Duración de la llamada en minutos", example=240)
     campaign: int = Field(..., description="Número de contactos realizados en esta campaña", example=2)
     pdays: int = Field(..., description="Días transcurridos desde la campaña anterior (-1 si no)", example=-1)
     previous: int = Field(..., description="Número de contactos previos a esta campaña", example=0)
