@@ -95,7 +95,7 @@ def predecir_suscripcion(cliente: ClienteInput):
             cliente.age,
             cliente.balance,
             cliente.day,
-            cliente.duration,
+            cliente.duration_min,
             cliente.campaign,
             cliente.pdays,
             cliente.previous
@@ -103,7 +103,7 @@ def predecir_suscripcion(cliente: ClienteInput):
 
         matriz_datos = np.array([datos_crudos])
         datos_escalados = escalador_datos.transform(matriz_datos)
-        prediccion = modelo_predictive.predict(datos_escalados)
+        prediccion = modelo_predictivo.predict(datos_escalados)
         resultado_final = int(prediccion[0])
 
         mensaje_negocio = (
