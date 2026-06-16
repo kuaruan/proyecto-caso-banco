@@ -69,3 +69,23 @@ def test_db(): # Conexión db
     except Exception as e: 
         logging.error(f"Error en  capa: {e}")
         raise e
+
+def test_prediccion():
+    payload_ej = {
+        "age": 40,
+        "balance": 2500,
+        "day": 12,
+        "duration": 180,
+        "campaign": 1,
+        "pdays": -1,
+        "previous": 0
+    }
+    response = client.post("/predict", json=payload_ej) # solicitud http post de ej al endpoint 
+
+    # Validaciones GitHub actions 
+    assert response.status_code == 200 
+    json_data = response.json()
+    assert json_data["status"] == "success"
+    assert "prediction_code" in json_data
+    assert "recomendacion" in json_data
+    
