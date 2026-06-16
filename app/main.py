@@ -50,3 +50,43 @@ def estadisticas_banco():
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/predict")
+def predecir_suscripcion(cliente: ClienteInput):
+    """Se reciben los datos (crudos en forma Json) para aplicar escalado y predicción de suscripción de depósito con algoritmo de predicción : Perceptrón Multicapa"""
+    if modelo_predictivo is None or escalador_datos is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Servicio no disponible"
+        )
+    try:
+        datos_crudos = [
+            cliente.age,
+            cliente.balance,
+            cliente.day,
+            cliente.duration,
+            cliente.campaign,
+            cliente.pdays,
+            cliente.previous
+        ]
+
+        matriz_datos = np.array([datos_crudos])
+        datos_escalados = escalador_datos.transform(matriz_datos)
+        prediccion = modelo_predictive.predict(datos_escalados)
+        resultado_final = int(prediccion[0])
+
+        mensaje_negocio = (
+            "Cliente se suscribirá, priorizar contacto"
+            if resultado_final == 1 
+            else "Cliente no se suscribirá, no priorizar" 
+        )
+
+        return {
+            "status": "success",
+            "prediction_code": resultado_final,
+            "prediction_label": "Deposit" if resultado_final == 1 else "No Deposit",
+            "recomendacion": mensaje_negocio
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al predecir: {str(e)}")
