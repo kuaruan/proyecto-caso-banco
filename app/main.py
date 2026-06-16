@@ -21,7 +21,6 @@ except Exception as e:
 
 # Zona de esquema y validación de datos 
 class ClienteInput(BaseModel):
-    """Estructura de datos"""
     age: int = Field(..., description="Edad del cliente", example=35)
     balance: float = Field(..., description="Balance anual en la cuenta", example=1500.0)
     day: int = Field(..., description="Último día del mes en que fue contactado", example=15)
@@ -33,7 +32,7 @@ class ClienteInput(BaseModel):
 
 app = FastAPI(
     title="API de Gestión de Datos - Bank Marketing",
-    description="Sistema para la consulta y análisis descriptivode suscripciones"
+    description="Sistema para la consulta y análisis descriptivo de suscripciones"
 )
 
 # --- Endpoints de Información ---
@@ -76,13 +75,13 @@ def estadisticas_banco():
         stats = get_servicios_stats()
         return {
             "status": "ok",
-            "indicadores": stats
+            "stats": stats
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/predict")
-def predecir_suscripcion(cliente: ClienteInput):
+def predecir_suscripcion(payload: ClienteInput):
     """Se reciben los datos (crudos en forma Json) para aplicar escalado y predicción de suscripción de depósito con algoritmo de predicción : Perceptrón Multicapa"""
     if modelo_predictivo is None or escalador_datos is None:
         raise HTTPException(
@@ -91,13 +90,13 @@ def predecir_suscripcion(cliente: ClienteInput):
         )
     try:
         datos_crudos = [
-            cliente.age,
-            cliente.balance,
-            cliente.day,
-            cliente.duration_min,
-            cliente.campaign,
-            cliente.pdays,
-            cliente.previous
+            payload.age,
+            payload.balance,
+            payload.day,
+            payload.duration_min,
+            payload.campaign,
+            payload.pdays,
+            payload.previous
         ]
 
         matriz_datos = np.array([datos_crudos])
@@ -105,17 +104,10 @@ def predecir_suscripcion(cliente: ClienteInput):
         prediccion = modelo_predictivo.predict(datos_escalados)
         resultado_final = int(prediccion[0])
 
-        mensaje_negocio = (
-            "Cliente se suscribirá, priorizar contacto"
-            if resultado_final == 1 
-            else "Cliente no se suscribirá, no priorizar" 
-        )
-
         return {
-            "status": "success",
-            "prediction_code": resultado_final,
-            "prediction_label": "Deposit" if resultado_final == 1 else "No Deposit",
-            "recomendacion": mensaje_negocio
+            "status": "ok",
+            "prediction": resultado_final,
+            "prediction_label": "Deposit" if resultado_final == 1 else "No Deposit"
         }
 
     except Exception as e:
