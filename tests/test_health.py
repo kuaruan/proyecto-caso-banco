@@ -43,8 +43,7 @@ def test_health():
         logging.info("Respuesta de estado /health: {response.status_code")
         assert response.status_code == 200
         assert response.json() == { # Validacion json retornado por api
-            "status": "operativo",
-            "sistema": "banco"
+            "status": "ok",
         }
         logging.info("Validación exitosa c:")
         
@@ -73,9 +72,9 @@ def test_db(): # Conexión db
 def test_prediccion():
     payload_ej = {
         "age": 40,
-        "balance": 2500,
+        "balance": 2500.0,
         "day": 12,
-        "duration": 180,
+        "duration_min": 3.0,
         "campaign": 1,
         "pdays": -1,
         "previous": 0
@@ -85,7 +84,7 @@ def test_prediccion():
     # Validaciones GitHub actions 
     assert response.status_code == 200 
     json_data = response.json()
-    assert json_data["status"] == "success"
+    assert json_data["status"] == "ok"
     assert "prediction_code" in json_data
     assert "recomendacion" in json_data
     
