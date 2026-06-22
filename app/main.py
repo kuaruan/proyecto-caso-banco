@@ -6,8 +6,8 @@ from pydantic import BaseModel, Field
 from app.db import test_connection, get_servicio, get_servicios_stats
 
 # Detección raíz del proyecto -> evita problemas en Docker
-RUTA_MODELO = os.path.join(BASE_DIR, "models", "modelo_perceptron_multicapa.pkl")
-RUTA_ESCALADOR = os.path.join(BASE_DIR, "models", "escalador_minmax.pkl")
+RUTA_MODELO = os.path.join("models", "modelo_perceptron_multicapa.pkl")
+RUTA_ESCALADOR = os.path.join("models", "escalador_minmax.pkl")
 
 try:
     #cargar archivos en memoria global una sola vez al encender la API
