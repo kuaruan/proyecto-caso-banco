@@ -90,11 +90,12 @@ def predecir_suscripcion(payload: ClienteInput):
             detail="Servicio no disponible"
         )
     try:
+        duracion_en_segundos = payload.duration_min*60
         datos_crudos = [
             payload.age,
             payload.balance,
             payload.day,
-            payload.duration_min,
+            payload.duration,
             payload.campaign,
             payload.pdays,
             payload.previous
