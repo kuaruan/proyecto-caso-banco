@@ -19,6 +19,8 @@ jobs:
       SUPABASE_DB_USER: ${{ secrets.SUPABASE_DB_USER }}
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
       SUPABASE_DB_PORT: ${{ secrets.SUPABASE_DB_PORT }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
       PYTHONPATH: .
 
     steps:
