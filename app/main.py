@@ -95,7 +95,7 @@ def predecir_suscripcion(payload: ClienteInput):
             payload.age,
             payload.balance,
             payload.day,
-            payload.duracion_en_segundos,
+            duracion_en_segundos,
             payload.campaign,
             payload.pdays,
             payload.previous
