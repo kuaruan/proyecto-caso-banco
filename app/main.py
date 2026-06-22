@@ -46,7 +46,7 @@ def root():
 
 @app.get("/health")
 def health():
-    return {"status": "operativo", "sistema": "banco"}
+    return {"status": "ok"}
     
 @app.get("/db-health")
 def db_health():
@@ -63,6 +63,7 @@ def listar_suscripciones(limit: int = Query(default=20, ge=1, le=100)):
         return {
             "status": "ok",
             "total_registros": len(data),
+            "limit": limit,
             "data": data
         }
     except Exception as e:
