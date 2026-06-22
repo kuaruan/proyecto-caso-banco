@@ -85,6 +85,7 @@ def test_prediccion():
     assert response.status_code == 200 
     json_data = response.json()
     assert json_data["status"] == "ok"
-    assert "prediction_code" in json_data
-    assert "recomendacion" in json_data
+    
+    assert "prediction" in json_data
+    assert "prediction_label" in json_data
     
