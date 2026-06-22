@@ -47,8 +47,8 @@ jobs:
         with:
           name: reporte-logs-bank-marketing-${{ github.run_number }}
           path: app.log
-          retention-days: 7 # guardar archivo 7 días
-          
+          retention-days: 7
+
   docker-build:
     name: Build Docker image
     runs-on: ubuntu-latest
