@@ -1,0 +1,62 @@
+{
+    "accuracy": 0.5011195700850873,
+    "confusion_matrix": [
+        [
+            126,
+            1049
+        ],
+        [
+            65,
+            993
+        ]
+    ],
+    "classification_report": {
+        "0": {
+            "precision": 0.6596858638743456,
+            "recall": 0.1072340425531915,
+            "f1-score": 0.18448023426061494,
+            "support": 1175.0
+        },
+        "1": {
+            "precision": 0.4862879529872674,
+            "recall": 0.9385633270321361,
+            "f1-score": 0.6406451612903226,
+            "support": 1058.0
+        },
+        "accuracy": 0.5011195700850873,
+        "macro avg": {
+            "precision": 0.5729869084308065,
+            "recall": 0.5228986847926638,
+            "f1-score": 0.4125626977754687,
+            "support": 2233.0
+        },
+        "weighted avg": {
+            "precision": 0.5775295764947984,
+            "recall": 0.5011195700850873,
+            "f1-score": 0.40061211639112576,
+            "support": 2233.0
+        }
+    },
+    "train_rows": 8928,
+    "test_rows": 2233,
+    "categorical_features": [
+        "job",
+        "marital",
+        "education",
+        "default",
+        "housing",
+        "loan",
+        "contact",
+        "month",
+        "poutcome"
+    ],
+    "numeric_features": [
+        "age",
+        "balance",
+        "day",
+        "duration_min",
+        "campaign",
+        "pdays",
+        "previous"
+    ]
+}
