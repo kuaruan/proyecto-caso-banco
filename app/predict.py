@@ -6,8 +6,8 @@ from app.db import get_connection_params
 
 def predict_suscripcion(cliente_id: int):
     # 1. Cargar el modelo MLP y el preprocesador correcto
-    model = joblib.load("models/modelo_perceptron_multicapa.pkl")
-    preprocessor = joblib.load("artifacts/bank_model.joblib") 
+    preprocessor = joblib.load("models/modelo_perceptron_multicapa.pkl")
+    model = joblib.load("artifacts/bank_model.joblib") 
     
     # 2. Conectarse a Supabase y extraer los datos del cliente
     params = get_connection_params()
