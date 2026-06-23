@@ -1,46 +1,31 @@
 import os
-import joblib
-import numpy as np
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 from app.db import test_connection, get_servicio, get_servicios_stats
-
-# Detección raíz del proyecto -> evita problemas en Docker
-RUTA_MODELO = os.path.join("models", "modelo_perceptron_multicapa.pkl")
-RUTA_ESCALADOR = os.path.join("models", "escalador_minmax.pkl")
-
-try:
-    #cargar archivos en memoria global una sola vez al encender la API
-    modelo_predictivo = joblib.load(RUTA_MODELO)
-    escalador_datos = joblib.load(RUTA_ESCALADOR)
-    print("Perceptrón Multicapa y Escalador MinMax acoplados con éxito en producción.")
-except Exception as e:
-    print(f"No se pudieron cargar los archivos de modelos (.pkl). Error: {e}")
-    modelo_predictivo = None
-    escalador_datos = None
-
-# Zona de esquema y validación de datos 
-class ClienteInput(BaseModel):
-    age: int = Field(..., description="Edad del cliente", example=35)
-    balance: float = Field(..., description="Balance anual en la cuenta", example=1500.0)
-    day: int = Field(..., description="Último día del mes en que fue contactado", example=15)
-    duration_min: float = Field(..., description="Duración de la llamada en minutos", example=3.5)
-    campaign: int = Field(..., description="Número de contactos realizados en esta campaña", example=2)
-    pdays: int = Field(..., description="Días transcurridos desde la campaña anterior (-1 si no)", example=-1)
-    previous: int = Field(..., description="Número de contactos previos a esta campaña", example=0)
-
+from app.predict import predict_bank_deposit  
 
 app = FastAPI(
-    title="API de Gestión de Datos - Bank Marketing",
-    description="Sistema para la consulta y análisis descriptivo de suscripciones"
+    title="API Bank Marketing",
+    description="Sistema DataOps para la consulta analítica y predicción de suscripciones a depósitos a plazo"
 )
 
-# --- Endpoints de Información ---
+# Zona de Esquemas y Validación de Datos ( con Pydantic) 
+class ClienteInput(BaseModel):
+    age: int = Field(..., description="Edad del cliente", example=35)
+    balance: float = Field(..., description="Balance anual medio en la cuenta (en euros)", example=1500.0)
+    day: int = Field(..., description="Último día del mes en que fue contactado", example=15)
+    duration_min: float = Field(..., description="Duración de la llamada de campaña en minutos", example=3.5)
+    campaign: int = Field(..., description="Número de contactos realizados durante esta campaña", example=2)
+    pdays: int = Field(..., description="Días transcurridos desde la campaña anterior (-1 si no fue contactado)", example=-1)
+    previous: int = Field(..., description="Número de contactos realizados antes de esta campaña", example=0)
+
+
+# Endpoints de Información y Diagnóstico 
 
 @app.get("/")
 def root():
     return {
-        "message": "API de Gestión de Datos para Bank Marketing",
+        "message": "API: Activa.Proyecto Gestión de Datos para Bank Marketing ",
         "docs": "/docs"
     }
 
@@ -50,14 +35,15 @@ def health():
     
 @app.get("/db-health")
 def db_health():
-    """Verificar la conexión con Supabase"""
+    """Verificar salud de la conexión directa con Supabase"""
     return test_connection()
 
-# --- Endpoints de Datos ---
 
-@app.get("/servicio")
+# Endpoints de Datos (Sincronizados con tu app/db.py original) 
+
+@app.get("/bank-data-demo")
 def listar_suscripciones(limit: int = Query(default=20, ge=1, le=100)):
-    """Obtiene los registros de la base de datos en Supabase"""
+    """Obtiene una muestra de registros directamente desde la tabla en Supabase"""
     try:
         data = get_servicio(limit=limit)
         return {
@@ -69,9 +55,9 @@ def listar_suscripciones(limit: int = Query(default=20, ge=1, le=100)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/suscripciones/estadisticas")
+@app.get("/bank-data/stats")
 def estadisticas_banco():
-    """Análisis estadístico descriptivo de la campaña"""
+    """Muestra análisis descriptivo y agregados de la campaña de marketing (tasas de éxito, promedios)"""
     try:
         stats = get_servicios_stats()
         return {
@@ -81,36 +67,27 @@ def estadisticas_banco():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+# Endpoint de Inferencia Predictiva 
+
 @app.post("/predict")
 def predecir_suscripcion(payload: ClienteInput):
-    """Se reciben los datos (crudos en forma Json) para aplicar escalado y predicción de suscripción de depósito con algoritmo de predicción : Perceptrón Multicapa"""
-    if modelo_predictivo is None or escalador_datos is None:
-        raise HTTPException(
-            status_code=503,
-            detail="Servicio no disponible"
-        )
+    """
+    Recibe los datos en crudo (JSON), procesa los cálculos matemáticos
+    y evalúa mediante el modelo si el cliente se suscribirá (variable objetivo: deposit)
+    """
     try:
-        duracion_en_segundos = payload.duration_min * 60
-        datos_crudos = [
-            payload.age,
-            payload.balance,
-            payload.day,
-            duracion_en_segundos,
-            payload.campaign,
-            payload.pdays,
-            payload.previous
-        ]
-
-        matriz_datos = np.array([datos_crudos])
-        datos_escalados = escalador_datos.transform(matriz_datos)
-        prediccion = modelo_predictivo.predict(datos_escalados)
-        resultado_final = int(prediccion[0])
-
+        input_data = payload.model_dump()
+        resultado = predict_bank_deposit(input_data)
+        
         return {
             "status": "ok",
-            "prediction": resultado_final,
-            "prediction_label": "Deposit" if resultado_final == 1 else "No Deposit"
+            "prediction": int(resultado["prediction"]),
+            "prediction_label": resultado["label"]  # Retorna "Deposit" o "No Deposit"
         }
 
+    except ValueError as ve:
+        
+        raise HTTPException(status_code=503, detail=str(ve))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al predecir: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error en el proceso de inferencia: {str(e)}")
