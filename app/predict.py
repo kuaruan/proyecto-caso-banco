@@ -6,7 +6,7 @@ from psycopg.rows import dict_row
 
 def predict_suscripcion(cliente_id: int):
     # Cargar modelo
-    model = joblib.load("models/bank_model.pkl")
+    model = joblib.load("models/modelo_perceptron_multicapa.pkl")
     params = get_connection_params()
     
     with psycopg.connect(**params, row_factory=dict_row) as conn:
