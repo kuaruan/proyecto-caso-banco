@@ -1,93 +1,69 @@
-import os
 from fastapi import FastAPI, HTTPException, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from app.db import test_connection, get_servicio, get_servicios_stats
-from app.predict import predict_bank_deposit  
+from app.predict import predict_suscripcion
 
-app = FastAPI(
-    title="API Bank Marketing",
-    description="Sistema DataOps para la consulta analítica y predicción de suscripciones a depósitos a plazo"
-)
+app = FastAPI(title="Bank Marketing Dataset API")
 
-# Zona de Esquemas y Validación de Datos ( con Pydantic) 
-class ClienteInput(BaseModel):
-    age: int = Field(..., description="Edad del cliente", example=35)
-    balance: float = Field(..., description="Balance anual medio en la cuenta (en euros)", example=1500.0)
-    day: int = Field(..., description="Último día del mes en que fue contactado", example=15)
-    duration_min: float = Field(..., description="Duración de la llamada de campaña en minutos", example=3.5)
-    campaign: int = Field(..., description="Número de contactos realizados durante esta campaña", example=2)
-    pdays: int = Field(..., description="Días transcurridos desde la campaña anterior (-1 si no fue contactado)", example=-1)
-    previous: int = Field(..., description="Número de contactos realizados antes de esta campaña", example=0)
-
-
-# Endpoints de Información y Diagnóstico 
+# --- Endpoints de Información ---
 
 @app.get("/")
 def root():
-    return {
-        "message": "API: Activa.Proyecto Gestión de Datos para Bank Marketing ",
-        "docs": "/docs"
-    }
+    return {"message": "API de Predicción de suscripciones para Bank Marketing"}
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
-    
+    return {"status": "operativo", "sistema": "banco"}
+
 @app.get("/db-health")
 def db_health():
-    """Verificar salud de la conexión directa con Supabase"""
+    """Verificar la conexión con Supabase"""
     return test_connection()
 
+# --- Endpoints de Datos ---
 
-# Endpoints de Datos (Sincronizados con tu app/db.py original) 
-
-@app.get("/bank-data-demo")
+@app.get("/servicio")
 def listar_suscripciones(limit: int = Query(default=20, ge=1, le=100)):
-    """Obtiene una muestra de registros directamente desde la tabla en Supabase"""
+    """Obtiene los últimos registros de la base de datos"""
     try:
         data = get_servicio(limit=limit)
         return {
             "status": "ok",
             "total_registros": len(data),
-            "limit": limit,
             "data": data
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/bank-data/stats")
+@app.get("/suscripciones/estadisticas")
 def estadisticas_banco():
-    """Muestra análisis descriptivo y agregados de la campaña de marketing (tasas de éxito, promedios)"""
+    """Análisis estadístico de suscripciones"""
     try:
         stats = get_servicios_stats()
         return {
             "status": "ok",
-            "stats": stats
+            "indicadores": stats
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# --- Endpoint de Predicción con IA ---
 
-# Endpoint de Inferencia Predictiva 
-
-@app.post("/predict")
-def predecir_suscripcion(payload: ClienteInput):
+@app.get("/predict/{cliente_id}")
+def predecir_por_id(cliente_id: int):
     """
-    Recibe los datos en crudo (JSON), procesa los cálculos matemáticos
-    y evalúa mediante el modelo si el cliente se suscribirá (variable objetivo: deposit)
+    Endpoint que toma un ID de cliente, busca sus datos en Supabase 
+    y usa el modelo .pkl para predecir si suscribirá un depósito.
     """
     try:
-        input_data = payload.model_dump()
-        resultado = predict_bank_deposit(input_data)
+        result = predict_suscripcion(cliente_id)
         
+        if "error" in result:
+            raise HTTPException(status_code=404, detail=result["error"])
+            
         return {
             "status": "ok",
-            "prediction": int(resultado["prediction"]),
-            "prediction_label": resultado["label"]  # Retorna "Deposit" o "No Deposit"
+            "resultado": result
         }
-
-    except ValueError as ve:
-        
-        raise HTTPException(status_code=503, detail=str(ve))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error en el proceso de inferencia: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error en la predicción: {str(e)}")
