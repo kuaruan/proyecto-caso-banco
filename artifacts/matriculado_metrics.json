@@ -1,0 +1,13 @@
+{
+    "model_name": " Perceptr\u00f3n multicapa (Bank Marketing)",
+    "accuracy": 0.82,
+    "features_trained": [
+        "age",
+        "balance",
+        "day",
+        "duration_min",
+        "campaign",
+        "pdays",
+        "previous"
+    ]
+}
