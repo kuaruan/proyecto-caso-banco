@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: test-app-cata
+    name: proyecto-caso-banco
     env: docker
     plan: free
     region: oregon
