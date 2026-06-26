@@ -20,21 +20,37 @@ La solución se enfoca en un flujo de datos robusto:
 # Estructura del proyecto
 ```text
 proyecto-caso-banco/
-├─ app/
-│  ├─ main.py              
-│  └─ db.py                        
-├─ scripts/
-│  ├─ pre_procesamiento_caso_2.py 
-│  ├─ validacion_de_datos_caso_2.py 
-│  └─ carga_de_datos_caso_2.py    
-├─ data/
-│  └─ datos_02_bank_validados.csv 
-├─ tests/
-│  └─ test_health.py            
-├─ .github/
-│  └─ workflows/
-│     └─ ci.yml                   
-├─ .env.example                  
-├─ .dockerignore
-├─ Dockerfile
-└─ requirements.txt
+├── .github/workflows/
+│   └── ci.yml            
+├── .vscode/
+│   └── settings.json   
+├── app/
+│   ├── __init__.py         
+│   ├── db.py              
+│   ├── main.py           
+│   └── predict.py          
+├── artifacts/
+│   ├── .gitkeep            
+│   ├── bank_metrics (1).json 
+│   └── bank_model.joblib    
+├── data/
+│   └── datos_02_bank_validados.csv 
+├── models/
+│   ├── .gitkeep           
+│   ├── escalador_minmax.pkl
+│   └── modelo_perceptron_multicapa.pkl 
+├── scripts/
+│   ├── carga_datos_caso_2.py         
+│   ├── kfold_caso_2_gestión_de_datos.py 
+│   ├── pre_procesamiento_caso_2.py    
+│   ├── pruebas_de_rendimiento_caso2_.py 
+│   ├── pruebas_de_seguridad_caso2.py   
+│   └── validación_de_datos_caso_2_.py  
+├── tests/
+│   └── test_health.py       
+├── .dockerignore           
+├── .env.example             
+├── .gitignore              
+├── Dockerfile               
+├── README.md               
+└── requirements.txt         
