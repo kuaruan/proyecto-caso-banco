@@ -1,21 +1,24 @@
 # Proyecto de Bank Marketing
 
-Este proyecto implementa una solución de ingeniería de datos para centralizar y visualizar información de campañas de marketing bancario (Caso: Bank Marketing), utilizando una arquitectura moderna y reproducible.
+El siguiente proyecto implementa una solución integral de ingeniería de software y MLOps para centralizar, procesar y predecir la probabilidad de éxito de campañas de marketing bancario (Caso de estudio: Bank Marketing). 
 
 # Objetivo
 Desarrollar un entorno técnico para la ingesta y consulta de datos utilizando:
 - Python 3.11
+- Algoritmo de Perceptrón Multicapa para aplicar técnicas de normalización para la estimación de suscripción.
 - FastAPI para la exposición de servicios web.
 - Docker para asegurar la portabilidad del entorno.
 - Supabase (PostgreSQL) como motor de base de datos en la nube.
-- Pandas & Psycopg para el procesamiento y carga de datos.
+- Pandas & Psycopg para el procesamiento, persistencia y carga de datos.
 
 # Arquitectura del Proyecto
 La solución se enfoca en un flujo de datos robusto:
 - Aplicación empaquetada en contenedores Docker.
 - Conexión dinámica a base de datos relacional en la nube.
 - Documentación automatizada de la interfaz mediante Swagger UI.
-- Pipeline de limpieza y validación de datos previo a la carga.
+- Pipeline de limpieza, pre-procesamiento y validación de datos previo a la carga.
+- Consumo automatizado de artefactos de Machine Learning encapsulados para resolver transformaciones de variables en memoria y responder de forma inmediata.
+
 
 # Estructura del proyecto
 ```text
